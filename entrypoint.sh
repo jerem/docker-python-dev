@@ -27,7 +27,7 @@ do
 done
 
 if ! cmp -s /pipcache/sum.txt /pipcache/new_sum.txt > /dev/null; then
-  rm -fr /venv/{*,.*} &&
+  rm -fr /venv/* &&
   virtualenv /venv &&
   pip install --exists-action w --download /pipcache -r "$REQUIREMENTS_FILE" &&
   pip install --exists-action w --find-links /pipcache -r "$REQUIREMENTS_FILE" &&

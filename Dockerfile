@@ -56,6 +56,6 @@ WORKDIR /app
 VOLUME /venv
 VOLUME /pipcache
 
-EXPOSE 22 8000
+EXPOSE 22
 
 ENTRYPOINT ["/entrypoint.sh"]

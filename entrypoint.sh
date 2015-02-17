@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+export VIRTUAL_ENV="/venv"
+export PATH="$VIRTUAL_ENV/bin:$PATH"
+
 parse_pip()
 {
   pip_file="$1"
@@ -13,13 +16,6 @@ parse_pip()
   done
 }
 
-if [ ! -e /venv/bin/python ]; then
-    virtualenv /venv
-fi
-
-export VIRTUAL_ENV="/venv"
-export PATH="$VIRTUAL_ENV/bin:$PATH"
-
 if [ -z "$REQUIREMENTS_FILE" ]; then
     REQUIREMENTS_FILE="/app/requirements.txt"
 fi
@@ -31,9 +27,12 @@ do
 done
 
 if ! cmp -s /pipcache/sum.txt /pipcache/new_sum.txt > /dev/null; then
-    pip install --download /pipcache -r "$REQUIREMENTS_FILE"
-    pip install --find-links /pipcache -r "$REQUIREMENTS_FILE"
-    mv /pipcache/new_sum.txt /pipcache/sum.txt
+  rm -fr /venv/{*,.*} &&
+  virtualenv /venv &&
+  pip install --exists-action w --download /pipcache -r "$REQUIREMENTS_FILE" &&
+  pip install --exists-action w --find-links /pipcache -r "$REQUIREMENTS_FILE" &&
+  mv /pipcache/new_sum.txt /pipcache/sum.txt || exit $?
 fi
 
+/usr/sbin/sshd
 exec "$@"

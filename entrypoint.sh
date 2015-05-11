@@ -3,6 +3,7 @@ set -e
 
 export VIRTUAL_ENV="/venv"
 export PATH="$VIRTUAL_ENV/bin:$PATH"
+export PIP_ACCEL_CACHE="/pipcache"
 
 parse_pip()
 {
@@ -17,21 +18,24 @@ parse_pip()
 }
 
 if [ -z "$REQUIREMENTS_FILE" ]; then
-    REQUIREMENTS_FILE="/app/requirements.txt"
+  REQUIREMENTS_FILE="/app/requirements.txt"
 fi
 
-> /pipcache/new_sum.txt
-for f in `parse_pip "$REQUIREMENTS_FILE"`
-do
-  md5sum "$f" >> /pipcache/new_sum.txt
-done
+if [ -f "$REQUIREMENTS_FILE" ]; then
+  > /pipcache/new_sum.txt
+  for f in `parse_pip "$REQUIREMENTS_FILE"`
+  do
+    md5sum "$f" >> /pipcache/new_sum.txt
+  done
 
-if ! cmp -s /pipcache/sum.txt /pipcache/new_sum.txt > /dev/null; then
-  rm -fr /venv/* &&
-  virtualenv /venv &&
-  pip install --exists-action w --download /pipcache -r "$REQUIREMENTS_FILE" &&
-  pip install --exists-action w --find-links /pipcache -r "$REQUIREMENTS_FILE" &&
-  mv /pipcache/new_sum.txt /pipcache/sum.txt || exit $?
+  if ! cmp -s /pipcache/sum.txt /pipcache/new_sum.txt > /dev/null; then
+    rm -fr /venv/* &&
+    virtualenv /venv &&
+    pip install --exists-action w --download /pipcache pip-accel &&
+    pip install --exists-action w --find-links /pipcache pip-accel &&
+    pip-accel install -r "$REQUIREMENTS_FILE" &&
+    mv /pipcache/new_sum.txt /pipcache/sum.txt || exit $?
+  fi
 fi
 
 /usr/sbin/sshd

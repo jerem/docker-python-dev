@@ -1,4 +1,4 @@
-FROM debian:latest
+FROM debian:jessie
 MAINTAINER Jérémy Bethmont <jeremy.bethmont@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED 1
 
 # Install system dependencies
 RUN apt-get update -q && apt-get install -qy \
+    build-essential \
     git \
     libcairo2 \
     libffi-dev \
@@ -43,7 +44,8 @@ RUN mkdir /var/run/sshd && \
     echo 'root:root' | chpasswd
 
 RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
+    sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config && \
+    echo 'KexAlgorithms=diffie-hellman-group1-sha1' >> /etc/ssh/sshd_config
 
 COPY entrypoint.sh /entrypoint.sh
 

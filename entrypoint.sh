@@ -38,5 +38,4 @@ if [ -f "$REQUIREMENTS_FILE" ]; then
   fi
 fi
 
-/usr/sbin/sshd
 exec "$@"

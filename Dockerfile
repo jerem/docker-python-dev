@@ -52,11 +52,13 @@ COPY entrypoint.sh /entrypoint.sh
 RUN mkdir /app
 RUN mkdir /venv
 RUN mkdir /pipcache
+RUN mkdir /root/.pycharm_helpers
 
 WORKDIR /app
 
 VOLUME /venv
 VOLUME /pipcache
+VOLUME /root/.pycharm_helpers
 
 EXPOSE 22
 
